@@ -3,12 +3,14 @@ import { createSessionToken } from '../../../utils/coinbase';
 
 export async function POST(req: NextRequest) {
   try {
+    const BASE_URL = process.env.BASE_URL;
+
     const { evmAddress } = await req.json();
     if (!evmAddress) {
       return NextResponse.json({ error: 'EVM address is required' }, { status: 400 });
     }
     const sessionToken = await createSessionToken('offramp', evmAddress);
-    const redirectUrl = `https://pay-sandbox.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD&redirectUrl=https://www.google.com&partnerUserId=12345`; // Example parameters
+    const redirectUrl = `https://pay-sandbox.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD&redirectUrl=${BASE_URL}&partnerUserId=12345`; // Example parameters
     
     return NextResponse.json({ redirectUrl });
   } catch (error) {

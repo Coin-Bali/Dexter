@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'EVM address is required' }, { status: 400 });
     }
     const sessionToken = await createSessionToken('onramp', evmAddress);
-    const redirectUrl = `https://pay-sandbox.coinbase.com/buy/select-asset?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD`; // Example parameters
+    const redirectUrl = `https://pay-sandbox.coinbase.com/buy/select-asset?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD`;
     
     return NextResponse.json({ redirectUrl });
   } catch (error) {

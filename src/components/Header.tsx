@@ -33,7 +33,7 @@ export default function Header() {
   return (
     <header>
       <div className="header-inner">
-        <h1 className="site-title">CDP Next.js StarterKit</h1>
+        <h1 className="site-title"> Decentralized EXchange for Timely Execution & Returns</h1>
         <div className="user-info flex-row-container">
           {evmAddress && (
             <button

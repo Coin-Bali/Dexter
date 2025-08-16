@@ -34,9 +34,12 @@ const OnRampOffRamp: React.FC<OnRampOffRampProps> = ({ balance, getBalance, evmA
       }
 
       const data = await response.json();
-      window.location.href = data.redirectUrl;
+      var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+      var URL = data.redirectUrl;
+      var win = window.open(URL, "_blank", strWindowFeatures);
 
       setTransactionStatus(`${type} initiated. Waiting for user completion...`);
+      // TODO implement polling api
     } catch (error) {
       console.error(`${type} failed:`, error);
       setTransactionStatus(`${type} failed.`);
@@ -44,15 +47,14 @@ const OnRampOffRamp: React.FC<OnRampOffRampProps> = ({ balance, getBalance, evmA
   };
 
   return (
-    <div className="on-ramp-off-ramp-container">
-      <h2>Fiat On/Off-Ramp</h2>
-      <div className="balance-display">
-        <p>Your Balance: {balance ?? '--'} ETH</p>
-        <p>Transaction Status: {transactionStatus}</p>
+    <div className="on-ramp-off-ramp-container flex flex-col items-center p-3">
+      <h2 className="text-xl font-semibold mb-4">Fiat On/Off-Ramp</h2>
+      <div className="balance-display text-center mb-4">
+        <p className="text-sm text-gray-400">Transaction Status: {transactionStatus}</p>
       </div>
-      <div className="actions">
-        <button onClick={() => handleRamp('onramp')}>Add Funds (On-Ramp)</button>
-        <button onClick={() => handleRamp('offramp')}>Convert to Fiat (Off-Ramp)</button>
+      <div className="actions flex space-x-4 gap-4" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+        <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75" onClick={() => handleRamp('onramp')}>Add Funds (On-Ramp)</button>
+        <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75" onClick={() => handleRamp('offramp')}>Convert to Fiat (Off-Ramp)</button>
       </div>
     </div>
   );

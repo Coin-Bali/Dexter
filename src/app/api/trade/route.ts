@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     let fromTokenAddress: string;
     let toTokenAddress: string;
     let amountInWei: bigint;
-    let tradeAmount = parseFloat(amount);
+    const tradeAmount = parseFloat(amount);
 
     if (direction === 'up') {
       fromTokenAddress = cbBTC;

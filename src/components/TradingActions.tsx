@@ -43,11 +43,6 @@ interface TradingActionsProps {
   getBalance: () => Promise<void>;
 }
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
 
 export default function TradingActions({ evmAddress, getBalance }: TradingActionsProps) {
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
@@ -57,7 +52,7 @@ export default function TradingActions({ evmAddress, getBalance }: TradingAction
   const [countdown, setCountdown] = useState<number>(0); // New state for countdown
 
   const executeSwap = useCallback(async (tradeDetails: { direction: 'up' | 'down'; amount: number; initialPrice: number; evmAddress: `0x${string}`; tradeType: 'initial' | 'reverse' }) => {
-    const { direction, amount, initialPrice, evmAddress, tradeType } = tradeDetails;
+    const { direction, amount, evmAddress, tradeType } = tradeDetails;
     try {
       setTradeMessage(`Initiating ${tradeType} trade...`);
 
@@ -84,7 +79,7 @@ export default function TradingActions({ evmAddress, getBalance }: TradingAction
       setTradeMessage(`Swap ${tradeType} failed: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
-  }, [evmAddress]);
+  }, []);
 
   const handleTrade = useCallback(async (direction: 'up' | 'down') => {
     setTradeMessage(null);

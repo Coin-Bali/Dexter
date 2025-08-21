@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
 import { useEvmAddress, useIsSignedIn } from "@coinbase/cdp-hooks";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPublicClient, http, formatEther, createWalletClient, custom } from "viem";
@@ -34,12 +28,12 @@ const client = createPublicClient({
 //     })
 //   : undefined;
 
-interface Trade {
-  direction: 'up' | 'down';
-  initialPrice: number;
-  amount: number;
-  startTime: number;
-}
+// interface Trade {
+//   direction: 'up' | 'down';
+//   initialPrice: number;
+//   amount: number;
+//   startTime: number;
+// }
 
 /**
  * The Signed In screen
@@ -83,8 +77,8 @@ export default function SignedInScreen() {
           </div>
           <div className="card card--onramp-offramp max-w-sm">
             <OnRampOffRamp
-              balance={formattedBalance}
-              getBalance={getBalance}
+              // balance={formattedBalance}
+              // getBalance={getBalance}
               evmAddress={evmAddress}
             />
           </div>

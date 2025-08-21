@@ -1,6 +1,6 @@
 "use client";
 import { LoadingSkeleton } from "@coinbase/cdp-react/components/LoadingSkeleton";
-
+import Image from "next/image"
 interface Props {
   balance?: string;
 }
@@ -21,7 +21,7 @@ export default function UserBalance(props: Props) {
         {balance === undefined && <LoadingSkeleton as="span" className="loading--balance" />}
         {balance !== undefined && (
           <span className="flex-row-container">
-            <img src="/eth.svg" alt="" className="balance-icon" />
+            <Image src="/eth.svg" alt="eth logo" width={16} height={16} className="balance-icon" />
             <span>{balance}</span>
             <span className="sr-only">Ethereum</span>
           </span>

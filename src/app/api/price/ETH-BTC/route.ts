@@ -8,9 +8,8 @@ if (!API_KEY || !API_SECRET) {
   throw new Error('CDP_API_ID and CDP_API_SECRET_2 must be set in your environment variables');
 }
 
-export async function GET(request: NextRequest, { params }: { params: { pair: string } }) {
-  const { pair } = await params;
-
+export async function GET(request: NextRequest) {
+  const pair = "ETH-BTC"
   if (!pair) {
     return NextResponse.json({ error: 'Currency pair is required' }, { status: 400 });
   }

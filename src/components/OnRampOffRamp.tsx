@@ -6,12 +6,12 @@ import React, { useState } from 'react';
 
 
 interface OnRampOffRampProps {
-  balance: string | undefined;
-  getBalance: () => void;
+  // balance: string | undefined;
+  // getBalance: () => void;
   evmAddress: string | null;
 }
 
-const OnRampOffRamp: React.FC<OnRampOffRampProps> = ({ balance, getBalance, evmAddress }) => {
+const OnRampOffRamp: React.FC<OnRampOffRampProps> = ({ evmAddress }) => {
   const [transactionStatus, setTransactionStatus] = useState<string>('Idle');
 
   const handleRamp = async (type: 'onramp' | 'offramp') => {
@@ -34,9 +34,9 @@ const OnRampOffRamp: React.FC<OnRampOffRampProps> = ({ balance, getBalance, evmA
       }
 
       const data = await response.json();
-      var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
-      var URL = data.redirectUrl;
-      var win = window.open(URL, "_blank", strWindowFeatures);
+      const strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+      const URL = data.redirectUrl;
+      window.open(URL, "_blank", strWindowFeatures);
 
       setTransactionStatus(`${type} initiated. Waiting for user completion...`);
       // TODO implement polling api

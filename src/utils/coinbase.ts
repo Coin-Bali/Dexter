@@ -1,37 +1,24 @@
-import * as jwt from 'jsonwebtoken';
-import * as crypto from 'crypto';
 import { generateJwt } from "@coinbase/cdp-sdk/auth";
 
-const CDP_API_ID = process.env.CDP_API_ID ? process.env.CDP_API_ID.trim() : undefined;
+export const generateJWT = async (requestPath: string, host: string, method: string, is_new = true): Promise<string> => {
+  let keyId, secret = null
+  if (is_new) {
+    keyId = process.env.CDP_API_KEY
+    secret = process.env.CDP_API_SECRET
+  } else {
+    const CDP_API_ID = process.env.CDP_API_ID ? process.env.CDP_API_ID.trim() : undefined;
 const CDP_API_SECRET_2 = process.env.CDP_API_SECRET_2 ? process.env.CDP_API_SECRET_2.trim().replace(/\\n/g, '\n') : '';
+    keyId = CDP_API_ID
+    secret = CDP_API_SECRET_2
+  }
 
-export const generateJWTES256 = (uri: string, issuer="cdp"): string => {
-  const payload = {
-    iss: issuer,
-    nbf: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 120,
-    sub: CDP_API_ID,
-    uri,
-  };
-
-  const header = {
-    alg: 'ES256',
-    kid: CDP_API_ID,
-    nonce: crypto.randomBytes(16).toString('hex'),
-  };
-
-  return jwt.sign(payload, CDP_API_SECRET_2, { algorithm: 'ES256', header });
-};
-
-
-export const generateJWTEd25519 = async (requestPath:string, host: string, method: string): Promise<string> => {
   return await generateJwt({
-    apiKeyId: process.env.CDP_API_KEY!,
-    apiKeySecret: process.env.CDP_API_SECRET!,
+    apiKeyId: keyId!,
+    apiKeySecret: secret!,
     requestMethod: method,
     requestHost: host,
     requestPath: requestPath,
-    expiresIn: 120, // Token valid for 2 minutes
+    expiresIn: 120,
   });
 }
 
@@ -39,9 +26,9 @@ export const generateJWTEd25519 = async (requestPath:string, host: string, metho
 export async function createSessionToken(type: 'onramp' | 'offramp', evmAddress: string): Promise<string> {
 
   const tokenEndpoint = `https://api.developer.coinbase.com/onramp/v1/token`;
-  const requestPath = `/onramp/v1/token`; 
+  const requestPath = `/onramp/v1/token`;
 
-  const jwt = await generateJWTEd25519(requestPath,'api.developer.coinbase.com','POST')
+  const jwt = await generateJWT(requestPath, 'api.developer.coinbase.com', 'POST')
 
 
   const response = await fetch(tokenEndpoint, {

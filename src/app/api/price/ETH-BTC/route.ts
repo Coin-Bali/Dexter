@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateJWTES256 } from '@/utils/coinbase';
+import { generateJWT } from '@/utils/coinbase';
 
 const API_KEY = process.env.CDP_API_ID ? process.env.CDP_API_ID.trim() : undefined;
 const API_SECRET = process.env.CDP_API_SECRET_2 ? process.env.CDP_API_SECRET_2.trim().replace(/\\n/g, '\n') : undefined;
@@ -22,9 +22,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const requestPath = `/api/v3/brokerage/products/${base}-${quote}`;
-    const uri = `${'GET'} ${'api.coinbase.com'}${requestPath}`;
-
-    const jwt = generateJWTES256(uri);
+    const jwt = await generateJWT(requestPath, 'api.coinbase.com', 'GET', false)
 
     const response = await fetch(`https://api.coinbase.com${requestPath}`,
       {

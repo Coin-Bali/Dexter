@@ -129,7 +129,7 @@ export const generateJWTEd25519Custom = (uri: string): string => {
   return `${signingInput}.${encodedSignature}`;
 };
 
-export async function createSessionToken(type: 'onramp' | 'offramp', evmAddress: string): Promise<string> {
+export async function createSessionToken(type: 'onramp' | 'offramp', evmAddress: string, clientIp: string): Promise<string> {
 
   const tokenEndpoint = `https://api.developer.coinbase.com/onramp/v1/token`;
   // const jwt = await generateJWTEd25519(`/onramp/v1/token`,'api.developer.coinbase.com','POST')
@@ -147,6 +147,7 @@ export async function createSessionToken(type: 'onramp' | 'offramp', evmAddress:
         { address: evmAddress, blockchains: ['ethereum', 'base'] }
       ],
       assets: ['ETH', 'USDC'],
+      clientIp: clientIp,
     }),
   });
 

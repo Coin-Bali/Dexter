@@ -146,7 +146,7 @@ export async function createSessionToken(type: 'onramp' | 'offramp', evmAddress:
       addresses: [
         { address: evmAddress, blockchains: ['ethereum', 'base'] }
       ],
-      assets: ['ETH', 'USDC'],
+      assets: ['ETH', 'BTC'],
       clientIp: clientIp,
     }),
   });

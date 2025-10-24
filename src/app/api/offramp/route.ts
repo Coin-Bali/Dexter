@@ -35,8 +35,7 @@ export async function POST(req: NextRequest) {
       evmAddress,
       clientIp
     );
-    const callbackurl = "https://help.com"
-    const redirectUrl = `https://pay-sandbox.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD&redirectUrl=${callbackurl}&partnerUserId=12345`;
+    const redirectUrl = `https://pay.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD&redirectUrl=${ALLOWED_ORIGIN}&partnerUserId=12345`;
 
     return NextResponse.json({ redirectUrl }, { headers: corsHeaders });
   } catch (error) {

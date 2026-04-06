@@ -9,10 +9,20 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function getDatabaseUrl() {
+  return (
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL
+  );
+}
+
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = getDatabaseUrl();
   if (!connectionString) {
-    throw new Error("DATABASE_URL environment variable is required");
+    throw new Error(
+      "A database connection string is required. Set DATABASE_URL or Vercel's POSTGRES_URL.",
+    );
   }
 
   const adapter = new PrismaNeon({ connectionString });

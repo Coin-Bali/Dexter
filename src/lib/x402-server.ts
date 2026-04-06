@@ -44,26 +44,13 @@ function readFirstValue(value: string | string[] | undefined) {
   return value?.trim();
 }
 
-function getFallbackX402PayToAddress() {
-  return process.env.X402_PAY_TO_ADDRESS?.trim();
-}
-
 function getPayToAddressFromRequest(context: X402RequestContext) {
   const queryValue = readFirstValue(
     context.adapter.getQueryParam?.(X402_PAY_TO_QUERY_PARAM),
   );
   const headerValue = context.adapter.getHeader(X402_PAY_TO_HEADER)?.trim();
 
-  return queryValue || headerValue || getFallbackX402PayToAddress();
-}
-
-export function getX402PayToAddress() {
-  const payToAddress = getFallbackX402PayToAddress();
-  if (!payToAddress) {
-    throw new Error("X402_PAY_TO_ADDRESS must be configured to enable x402 payments.");
-  }
-
-  return payToAddress;
+  return queryValue || headerValue;
 }
 
 export function getX402Network() {
@@ -127,7 +114,7 @@ export function getX402HttpServer(network = getX402Network()) {
       if (!getPayToAddressFromRequest(context)) {
         return {
           abort: true,
-          reason: `Provide the user's embedded wallet via the ${X402_PAY_TO_HEADER} header or ${X402_PAY_TO_QUERY_PARAM} query parameter, or configure X402_PAY_TO_ADDRESS as a fallback.`,
+          reason: `Provide the user's embedded wallet via the ${X402_PAY_TO_HEADER} header or ${X402_PAY_TO_QUERY_PARAM} query parameter.`,
         };
       }
     });
@@ -175,7 +162,7 @@ export async function getX402HttpServerWithDynamicRoutes(network = getX402Networ
     if (!getPayToAddressFromRequest(context)) {
       return {
         abort: true,
-        reason: `Provide the user's embedded wallet via the ${X402_PAY_TO_HEADER} header or ${X402_PAY_TO_QUERY_PARAM} query parameter, or configure X402_PAY_TO_ADDRESS as a fallback.`,
+        reason: `Provide the user's embedded wallet via the ${X402_PAY_TO_HEADER} header or ${X402_PAY_TO_QUERY_PARAM} query parameter.`,
       };
     }
   });

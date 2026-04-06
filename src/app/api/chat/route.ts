@@ -14,8 +14,12 @@ import {
   summarizeText,
 } from "@/lib/api-logger";
 import { prisma } from "@/lib/db";
+import { type PreferredNetworkValue } from "@/lib/networks";
 import { requireAuthenticatedUser } from "@/lib/session";
-import { getDexterPremiumServices } from "@/lib/x402-actions";
+import {
+  getDexterPremiumServices,
+  getMachineEconomyNetworkForPreference,
+} from "@/lib/x402-actions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,8 +40,15 @@ function getLlmGatewayBaseUrl() {
   );
 }
 
-function buildSystemPrompt(agentProfile: unknown) {
-  const premiumServices = getDexterPremiumServices();
+function buildSystemPrompt(
+  agentProfile: unknown,
+  preferredNetwork?: PreferredNetworkValue | null,
+) {
+  const premiumServices = getDexterPremiumServices(
+    undefined,
+    undefined,
+    getMachineEconomyNetworkForPreference(preferredNetwork),
+  );
 
   return `
 You are Agent Bazaar, an autonomous machine-commerce operator built on Coinbase Developer Platform.
@@ -250,7 +261,7 @@ export async function POST(request: NextRequest) {
 
     const result = streamText({
       model: llmGateway(DEFAULT_MODEL),
-      system: buildSystemPrompt(agentProfile),
+      system: buildSystemPrompt(agentProfile, user.preferredNetwork),
       messages: convertToCoreMessages(messages, { tools }),
       tools,
     maxSteps: 5,

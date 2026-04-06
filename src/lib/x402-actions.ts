@@ -51,23 +51,7 @@ function parseUsdPrice(value: unknown) {
 }
 
 export function getConfiguredMachineEconomyNetwork() {
-  const x402Network = process.env.X402_NETWORK?.trim();
-  if (x402Network) {
-    return x402Network as `${string}:${string}`;
-  }
-
-  const agentNetwork = process.env.CDP_AGENT_NETWORK?.trim();
-  if (agentNetwork === "base") {
-    return "eip155:8453";
-  }
-
-  if (agentNetwork === "base-sepolia") {
-    return "eip155:84532";
-  }
-
-  return (
-    DEFAULT_NETWORK
-  ) as `${string}:${string}`;
+  return DEFAULT_NETWORK as `${string}:${string}`;
 }
 
 export function getMachineEconomyNetworkForPreference(

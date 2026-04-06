@@ -90,13 +90,8 @@ These preferences are stored per user and used for wallet views, user-scoped age
 ### Optional
 
 - `DATABASE_URL_UNPOOLED`
-- `CDP_AGENT_WALLET_ADDRESS`
-- `CDP_AGENT_WALLET_IDEMPOTENCY_KEY`
 - `CDP_AGENT_RPC_URL`
-- `CDP_AGENT_NETWORK`
-- `X402_NETWORK`
 - `X402_FACILITATOR_URL`
-- `X402_PAY_TO_ADDRESS`
 - `LLM_GATEWAY_BASE_URL`
 - `LLM_GATEWAY_MODEL`
 - `COINBASE_API_KEY_ID`

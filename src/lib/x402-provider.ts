@@ -1,7 +1,5 @@
-import {
-  CdpEvmWalletProvider,
-  customActionProvider,
-} from "@coinbase/agentkit";
+import { customActionProvider } from "../../node_modules/@coinbase/agentkit/dist/action-providers/customActionProvider";
+import { CdpEvmWalletProvider } from "../../node_modules/@coinbase/agentkit/dist/wallet-providers/cdpEvmWalletProvider";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { wrapFetchWithPayment, x402Client, x402HTTPClient } from "@x402/fetch";
 import { z } from "zod";

@@ -1,11 +1,12 @@
-import {
-  AgentKit,
-  CdpEvmWalletProvider,
-  cdpApiActionProvider,
-  cdpEvmWalletActionProvider,
-  pythActionProvider,
-  walletActionProvider,
-} from "@coinbase/agentkit";
+import { cdpApiActionProvider } from "../../node_modules/@coinbase/agentkit/dist/action-providers/cdp/cdpApiActionProvider";
+import { cdpEvmWalletActionProvider } from "../../node_modules/@coinbase/agentkit/dist/action-providers/cdp/cdpEvmWalletActionProvider";
+import type {
+  Action,
+  ActionProvider,
+} from "../../node_modules/@coinbase/agentkit/dist/action-providers/actionProvider";
+import { pythActionProvider } from "../../node_modules/@coinbase/agentkit/dist/action-providers/pyth/pythActionProvider";
+import { walletActionProvider } from "../../node_modules/@coinbase/agentkit/dist/action-providers/wallet/walletActionProvider";
+import { CdpEvmWalletProvider } from "../../node_modules/@coinbase/agentkit/dist/wallet-providers/cdpEvmWalletProvider";
 import { formatEther } from "viem";
 
 import { prisma } from "@/lib/db";
@@ -18,8 +19,31 @@ type AgentUserContext = {
   preferredNetwork: "base_sepolia" | "base";
 };
 
+type AgentKitLike = {
+  getActions: () => Action[];
+};
+
 const walletProviderPromises = new Map<string, Promise<CdpEvmWalletProvider>>();
-const agentKitPromises = new Map<string, Promise<AgentKit>>();
+const agentKitPromises = new Map<string, Promise<AgentKitLike>>();
+
+function createAgentKitLike(
+  walletProvider: CdpEvmWalletProvider,
+  actionProviders: ActionProvider[],
+): AgentKitLike {
+  return {
+    getActions() {
+      const actions: Action[] = [];
+
+      for (const actionProvider of actionProviders) {
+        if (actionProvider.supportsNetwork(walletProvider.getNetwork())) {
+          actions.push(...actionProvider.getActions(walletProvider));
+        }
+      }
+
+      return actions;
+    },
+  };
+}
 
 function getAgentApiKeyId() {
   return process.env.CDP_API_KEY_ID?.trim() || process.env.CDP_API_KEY?.trim();
@@ -137,9 +161,7 @@ export async function getAgentKit(user: AgentUserContext) {
   const scopeKey = getScopeKey(user);
   if (!agentKitPromises.has(scopeKey)) {
     const walletProvider = await getAgentWalletProvider(user);
-    const actionProviders: NonNullable<
-      NonNullable<Parameters<typeof AgentKit.from>[0]>["actionProviders"]
-    > = [
+    const actionProviders: ActionProvider[] = [
       walletActionProvider(),
       cdpApiActionProvider(),
       cdpEvmWalletActionProvider(),
@@ -153,10 +175,10 @@ export async function getAgentKit(user: AgentUserContext) {
       // Keep chat usable even if the x402 client stack fails to load.
     }
 
-    agentKitPromises.set(scopeKey, AgentKit.from({
-      walletProvider,
-      actionProviders,
-    }));
+    agentKitPromises.set(
+      scopeKey,
+      Promise.resolve(createAgentKitLike(walletProvider, actionProviders)),
+    );
   }
 
   return agentKitPromises.get(scopeKey)!;

@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
       walletAddress: user.walletAddress,
       preferredNetwork: user.preferredNetwork,
     });
-    const tools = getVercelAITools(agentKit);
+    const tools = getVercelAITools(agentKit as Parameters<typeof getVercelAITools>[0]);
     const agentProfile = await getAgentProfile({
       id: user.id,
       walletAddress: user.walletAddress,

@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { withX402, type RouteConfig } from "@x402/next";
+import { NextRequest, NextResponse } from "next/server";
 
+import { getX402Routes, getX402Server } from "@/lib/x402-server";
 import { fetchCoinbaseProductPrice } from "@/utils/coinbase";
 
 export const runtime = "nodejs";
@@ -18,7 +20,9 @@ function buildNarrative(ethUsd: number, btcUsd: number, ethBtc: number) {
   };
 }
 
-export async function GET() {
+const ROUTE_KEY = "GET /api/x402/agent-insight";
+
+async function handleGet(_request: NextRequest): Promise<NextResponse<unknown>> {
   try {
     const { getAgentProfile } = await import("@/lib/agentkit");
     const [agentProfile, btcUsd, ethUsd, ethBtc] = await Promise.all([
@@ -61,3 +65,11 @@ export async function GET() {
     );
   }
 }
+
+const routeConfig = (getX402Routes() as Record<string, RouteConfig>)[ROUTE_KEY];
+
+if (!routeConfig) {
+  throw new Error(`Missing x402 route config for ${ROUTE_KEY}.`);
+}
+
+export const GET = withX402(handleGet, routeConfig, getX402Server());

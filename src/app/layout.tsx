@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/branding";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dexter",
-  description: "Decentralised exchange for timely executions and returns",
+  title: PRODUCT_NAME,
+  description: PRODUCT_DESCRIPTION,
 };
 
 /**

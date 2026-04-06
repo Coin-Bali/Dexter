@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSessionToken } from '../../../utils/coinbase';
+import { requireAuthenticatedUser } from "@/lib/session";
+
+export const dynamic = "force-dynamic";
 
 const ALLOWED_ORIGIN = process.env.BASE_URL;
 
@@ -19,24 +22,22 @@ export async function OPTIONS(_req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const { user } = await requireAuthenticatedUser(req);
     const forwarded = req.headers.get('x-forwarded-for');
-    const clientIp = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
-
-    const { evmAddress } = await req.json();
-    if (!evmAddress) {
-      return NextResponse.json(
-        { error: 'EVM address is required' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
+    const realIp = req.headers.get('x-real-ip');
+    const { clientIp: requestedClientIp } = await req.json();
+    const clientIp =
+      typeof requestedClientIp === 'string' && requestedClientIp.trim()
+        ? requestedClientIp.trim()
+        : forwarded?.split(',')[0]?.trim() || realIp?.trim() || '127.0.0.1';
 
     const sessionToken = await createSessionToken(
       'onramp',
-      evmAddress,
+      user.walletAddress,
       clientIp
     );
 
-    const redirectUrl = `https://pay-sandbox.coinbase.com/buy/select-asset?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD`;
+    const redirectUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${sessionToken}&defaultAsset=ETH&defaultNetwork=base&fiatCurrency=USD`;
 
     return NextResponse.json({ redirectUrl }, { headers: corsHeaders });
   } catch (error) {

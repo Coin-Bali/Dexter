@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PreferredNetwork {
+  base_sepolia
+  base
+}
+
+enum ThemeMode {
+  system
+  light
+  dark
+}
+
+model User {
+  id                    String           @id @default(cuid())
+  walletAddress         String           @unique @map("wallet_address")
+  displayName           String?          @map("display_name")
+  roleDescription       String?          @map("role_description")
+  preferredNetwork      PreferredNetwork @default(base_sepolia) @map("preferred_network")
+  themeMode             ThemeMode        @default(system) @map("theme_mode")
+  registrationCompleted Boolean          @default(false) @map("registration_completed")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  lastSeenAt            DateTime         @default(now()) @updatedAt @map("last_seen_at")
+
+  conversations Conversation[]
+  paymentEvents PaymentEvent[]
+  compositions  ApiComposition[]
+  sessions      UserSession[]
+  agentWallets  UserAgentWallet[]
+
+  @@map("users")
+}
+
+model AuthNonce {
+  id            String    @id @default(cuid())
+  walletAddress String    @map("wallet_address")
+  nonce         String    @unique
+  expiresAt     DateTime  @map("expires_at")
+  consumedAt    DateTime? @map("consumed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([walletAddress, createdAt])
+  @@map("auth_nonces")
+}
+
+model UserSession {
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  sessionTokenHash String   @unique @map("session_token_hash")
+  userAgent        String?  @map("user_agent")
+  ipAddress        String?  @map("ip_address")
+  expiresAt        DateTime @map("expires_at")
+  lastUsedAt       DateTime @default(now()) @map("last_used_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("user_sessions")
+}
+
+model UserAgentWallet {
+  id                 String   @id @default(cuid())
+  userId             String   @map("user_id")
+  network            PreferredNetwork
+  address            String   @unique
+  cdpWalletReference String?  @map("cdp_wallet_reference")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, network])
+  @@index([network])
+  @@map("user_agent_wallets")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String   @map("conversation_id")
+  role           String
+  content        String
+  parts          Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model PaymentEvent {
+  id              String   @id @default(cuid())
+  userWallet      String   @map("user_wallet")
+  serviceName     String   @map("service_name")
+  endpoint        String
+  price           String
+  status          String
+  responsePreview String?  @map("response_preview")
+  txHash          String?  @map("tx_hash")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userWallet], references: [walletAddress])
+
+  @@index([userWallet])
+  @@map("payment_events")
+}
+
+model AgentActivity {
+  id         String   @id @default(cuid())
+  userWallet String?  @map("user_wallet")
+  toolName   String   @map("tool_name")
+  args       Json?
+  result     Json?
+  status     String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userWallet])
+  @@map("agent_activities")
+}
+
+model ApiComposition {
+  id            String   @id @default(cuid())
+  creatorWallet String   @map("creator_wallet")
+  name          String
+  description   String
+  slug          String   @unique
+  price         String   @default("$0.01")
+  isPublished   Boolean  @default(false) @map("is_published")
+  sourceApis    Json     @map("source_apis")
+  aiPrompt      String   @map("ai_prompt")
+  aiModel       String   @default("gpt-4o-mini") @map("ai_model")
+  network       String   @default("eip155:84532")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  creator User      @relation(fields: [creatorWallet], references: [walletAddress])
+  calls   ApiCall[]
+
+  @@index([creatorWallet])
+  @@index([isPublished])
+  @@map("api_compositions")
+}
+
+model ApiCall {
+  id              String   @id @default(cuid())
+  compositionId   String   @map("composition_id")
+  callerWallet    String?  @map("caller_wallet")
+  status          String
+  responsePreview String?  @map("response_preview")
+  sourceResults   Json?    @map("source_results")
+  aiResponse      String?  @map("ai_response")
+  latencyMs       Int?     @map("latency_ms")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  composition ApiComposition @relation(fields: [compositionId], references: [id], onDelete: Cascade)
+
+  @@index([compositionId])
+  @@map("api_calls")
+}

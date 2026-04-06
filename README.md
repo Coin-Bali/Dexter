@@ -1,85 +1,150 @@
-# CDP React App
+# Agent Bazaar
 
-This project was generated with [`@coinbase/create-cdp-app`](https://coinbase.github.io/cdp-web/modules/_coinbase_create-cdp-app.html) using the Next.js template.
+Agent Bazaar is a CDP-native machine commerce platform built with Coinbase Developer Platform, AgentKit, embedded wallets, x402, and Neon Postgres.
 
-## Project Structure
+## What It Demonstrates
 
-```
-src/
-├── app/                  # Next.js App Router directory
-│   ├── favicon.ico      # Application favicon
-│   ├── globals.css      # Global styles and theme variables
-│   ├── layout.tsx       # Root layout with providers and global UI
-│   └── page.tsx         # Home page component
-│
-└── components/          # Reusable React components
-    ├── ClientApp.tsx    # Client-side application wrapper
-    ├── Header.tsx       # Navigation header with authentication status
-    ├── Icons.tsx        # Reusable icon components
-    ├── Loading.tsx      # Loading state component
-    ├── Providers.tsx    # CDP and theme providers setup
-    ├── SignInScreen.tsx # Authentication screen with CDP sign-in flow
-    ├── SignedInScreen.tsx # Screen displayed after successful authentication
-    ├── theme.ts         # Theme configuration and styling constants
-    ├── Transaction.tsx  # Example transaction flow using CDP Hooks
-    └── UserBalance.tsx  # Component to display user's wallet balance
-```
+- embedded wallet onboarding plus wallet-signature application auth
+- user-scoped agent wallets persisted per user and per network
+- x402 buying and selling
+- AI-assisted composite API creation from chat conversations
+- network-aware wallet balances, tracked assets, and wallet activity
+- persistent sessions, conversations, payments, and agent activity
 
-## Getting Started
+## Main Experience
 
-First, make sure you have your CDP Project ID:
+- `Chat` - persistent AgentKit chat with export-to-API flow
+- `Creator` - draft, edit, test, and publish composite x402 APIs
+- `Services` - Bazaar discovery plus local premium endpoints
+- `Wallets` - user wallet, agent wallet, tracked assets, and activity
+- `Dashboard` - telemetry and payment activity
+- `Profile` - editable display name, role, preferred network, and theme
+- `Help` - showcase guide and demo prompts
 
-1. Sign in or create an account on the [CDP Portal](https://portal.cdp.coinbase.com)
-2. Copy your Project ID from the dashboard
-3. Go to the [Embedded Wallets CORS settings](https://portal.cdp.coinbase.com/products/embedded-wallets/cors)
-4. Click add origin and whitelist `http://localhost:3000` (or wherever your app will run)
+## Architecture
 
-Then, copy the `env.example` file to `.env`, and populate the `NEXT_PUBLIC_CDP_PROJECT_ID` with your project id.
+### Frontend
 
-Now you can start the development server:
+- `src/components/ClientApp.tsx` - auth/session gate and app state machine
+- `src/components/AuthenticateWalletScreen.tsx` - wallet signature authentication
+- `src/components/RegistrationFlow.tsx` - first-run onboarding and preferences
+- `src/components/SignedInScreen.tsx` - authenticated shell and route-backed navigation
+- `src/components/Sidebar.tsx` - navigation, balance summary, theme switcher
+- `src/components/ChatInterface.tsx` - persistent chat, history, export-to-API flow
+- `src/components/ApiComposer.tsx` - composition editing and publishing
+- `src/components/WalletsPage.tsx` - portfolio, transfers, activity, agent funding
+- `src/components/ProfilePage.tsx` - editable profile and stats
+- `src/components/ThemeProvider.tsx` - light/dark/system theming
 
-Using npm:
+### Server
+
+- `src/app/api/auth/*` - challenge, verify, session, logout
+- `src/app/api/chat/route.ts` - authenticated AgentKit + Vercel AI SDK chat
+- `src/app/api/services/route.ts` - authenticated service discovery
+- `src/app/api/compositions/*` - authenticated composition CRUD + testing
+- `src/app/api/wallet/*` - balances, tracked assets, wallet activity
+- `src/app/api/agent/profile/route.ts` - user-scoped agent wallet profile
+- `src/app/api/agent/transfers/route.ts` - owner-only agent wallet withdrawals
+
+### Core Libraries
+
+- `src/lib/auth.ts` - wallet-auth message, cookie, nonce, hash helpers
+- `src/lib/session.ts` - session creation, validation, and cookie management
+- `src/lib/networks.ts` - supported network and token registry
+- `src/lib/agentkit.ts` - per-user / per-network agent wallet resolution
+- `src/lib/x402-actions.ts` - service discovery helpers and local premium metadata
+- `src/lib/x402-server.ts` - x402 seller configuration and dynamic composition routes
+- `src/lib/api-logger.ts` - structured request logging with request IDs
+
+## Authentication Model
+
+The app uses a two-step model:
+
+1. CDP embedded wallet sign-in
+2. wallet-signature verification that creates an authenticated app session cookie
+
+This protects non-x402 APIs from abuse and removes trust in caller-supplied wallet addresses.
+
+## Supported Networks
+
+- `base-sepolia`
+- `base`
+
+These preferences are stored per user and used for wallet views, user-scoped agent wallets, service discovery, and profile display.
+
+## Environment Variables
+
+### Core app
+
+- `NEXT_PUBLIC_CDP_PROJECT_ID`
+- `BASE_URL`
+- `LLM_GATEWAY_API_KEY`
+- `DATABASE_URL`
+
+### Agent wallet runtime
+
+- `CDP_API_KEY_ID`
+- `CDP_API_KEY_SECRET`
+- `CDP_WALLET_SECRET`
+
+### Optional
+
+- `DATABASE_URL_UNPOOLED`
+- `CDP_AGENT_WALLET_ADDRESS`
+- `CDP_AGENT_WALLET_IDEMPOTENCY_KEY`
+- `CDP_AGENT_RPC_URL`
+- `CDP_AGENT_NETWORK`
+- `X402_NETWORK`
+- `X402_FACILITATOR_URL`
+- `X402_PAY_TO_ADDRESS`
+- `LLM_GATEWAY_BASE_URL`
+- `LLM_GATEWAY_MODEL`
+- `COINBASE_API_KEY_ID`
+- `COINBASE_API_KEY_SECRET`
+
+## Local Development
+
 ```bash
-# Install dependencies
 npm install
-
-# Start the development server
+npx prisma migrate dev
+npx prisma generate
 npm run dev
 ```
 
-Using yarn:
-```bash
-# Install dependencies
-yarn
+## Verification
 
-# Start the development server
-yarn dev
+```bash
+npm run lint
+npm run build
+npm run test
 ```
 
-Using pnpm:
-```bash
-# Install dependencies
-pnpm install
+## Documentation Package
 
-# Start the development server
-pnpm dev
-```
+Submission-ready docs live in `docs/`:
 
-Visit [http://localhost:3000](http://localhost:3000) to see your app.
+- `docs/showcase.md`
+- `docs/security.md`
+- `docs/testing.md`
+- `docs/operations.md`
+- `docs/cdp-product-feedback.md`
 
-## Features
+## Stack
 
-This template comes with:
-- Next.js 15 App Router
-- CDP React components for authentication and wallet management
-- Example transaction components for Base Sepolia
-- Built-in TypeScript support
-- ESLint with Next.js configuration
-- Viem for type-safe Ethereum interactions
+- Next.js 16
+- React 19
+- TypeScript
+- Coinbase CDP React / Hooks / Core
+- Coinbase AgentKit
+- Vercel AI SDK
+- x402 (`@x402/core`, `@x402/next`, `@x402/fetch`, `@x402/evm`, `@x402/extensions`)
+- Prisma ORM + Neon Postgres
+- viem
+- Vitest + Testing Library
 
-## Learn More
+## Reference Links
 
-- [CDP Documentation](https://docs.cloud.coinbase.com/cdp/docs)
-- [CDP React Documentation](https://docs.cloud.coinbase.com/cdp/docs/react-components)
-- [CDP Portal](https://portal.cdp.coinbase.com)
-- [Vite Documentation](https://vitejs.dev)
+- [Coinbase CDP Docs](https://docs.cdp.coinbase.com/)
+- [AgentKit Docs](https://docs.cdp.coinbase.com/agent-kit/welcome)
+- [x402 Docs](https://docs.cdp.coinbase.com/x402/welcome)
+- [Payments MCP Docs](https://docs.cdp.coinbase.com/payments-mcp/welcome)

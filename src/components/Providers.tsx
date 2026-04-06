@@ -1,8 +1,9 @@
 "use client";
 
-import { CDPReactProvider } from "@coinbase/cdp-react/components/CDPReactProvider";
+import { CDPReactProvider } from "@coinbase/cdp-react";
 
 import { theme } from "@/components/theme";
+import { PRODUCT_NAME } from "@/lib/branding";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -10,11 +11,9 @@ interface ProvidersProps {
 
 const CDP_CONFIG = {
   projectId: process.env.NEXT_PUBLIC_CDP_PROJECT_ID ?? "",
-};
-
-const APP_CONFIG = {
-  name: "CDP Next.js StarterKit",
-  logoUrl: "http://localhost:3000/logo.svg",
+  appName: PRODUCT_NAME,
+  appLogoUrl: "/logo.svg",
+  disableAnalytics: true,
 };
 
 /**
@@ -26,7 +25,7 @@ const APP_CONFIG = {
  */
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <CDPReactProvider config={CDP_CONFIG} app={APP_CONFIG} theme={theme}>
+    <CDPReactProvider config={CDP_CONFIG} theme={theme}>
       {children}
     </CDPReactProvider>
   );

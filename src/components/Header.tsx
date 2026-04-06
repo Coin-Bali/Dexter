@@ -4,6 +4,7 @@ import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
 import { useEffect, useState } from "react";
 
 import { IconCheck, IconCopy, IconUser } from "@/components/Icons";
+import { PRODUCT_NAME } from "@/lib/branding";
 
 /**
  * Header component
@@ -33,7 +34,10 @@ export default function Header() {
   return (
     <header>
       <div className="header-inner">
-        <h1 className="site-title"> Decentralized EXchange for Timely Execution & Returns</h1>
+        <div className="header-brand">
+          <h1 className="site-title">{PRODUCT_NAME}</h1>
+          <p className="site-subtitle">CDP-native machine commerce platform</p>
+        </div>
         <div className="user-info flex-row-container">
           {evmAddress && (
             <button

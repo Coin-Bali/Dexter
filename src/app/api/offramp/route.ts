@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSessionToken } from '../../../utils/coinbase';
+import { requireAuthenticatedUser } from "@/lib/session";
 
-const ALLOWED_ORIGIN = process.env.BASE_URL;
+export const dynamic = "force-dynamic";
+
+const ALLOWED_ORIGIN = "https://www.google.com"
+// process.env.BASE_URL;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN!,
@@ -19,20 +23,18 @@ export async function OPTIONS(_req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const { user } = await requireAuthenticatedUser(req);
     const forwarded = req.headers.get('x-forwarded-for');
-    const clientIp = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
-
-    const { evmAddress } = await req.json();
-    if (!evmAddress) {
-      return NextResponse.json(
-        { error: 'EVM address is required' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
+    const realIp = req.headers.get('x-real-ip');
+    const { clientIp: requestedClientIp } = await req.json();
+    const clientIp =
+      typeof requestedClientIp === 'string' && requestedClientIp.trim()
+        ? requestedClientIp.trim()
+        : forwarded?.split(',')[0]?.trim() || realIp?.trim() || '127.0.0.1';
 
     const sessionToken = await createSessionToken(
       'offramp',
-      evmAddress,
+      user.walletAddress,
       clientIp
     );
     const redirectUrl = `https://pay.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&defaultAsset=ETH&fiatCurrency=USD&redirectUrl=${ALLOWED_ORIGIN}&partnerUserId=12345`;

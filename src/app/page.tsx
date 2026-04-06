@@ -1,6 +1,5 @@
 "use client";
-import ClientApp from "@/components/ClientApp";
-import Providers from "@/components/Providers";
+import AppRoot from "@/components/AppRoot";
 
 /**
  * Home page for the Next.js app
@@ -8,9 +7,5 @@ import Providers from "@/components/Providers";
  * @returns The home page
  */
 export default function Home() {
-  return (
-    <Providers>
-      <ClientApp />
-    </Providers>
-  );
+  return <AppRoot />;
 }

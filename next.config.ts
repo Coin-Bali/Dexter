@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: [
+    "@coinbase/agentkit",
+    "@x402/evm",
+    "@x402/fetch",
+    "viem",
+    "@noble/curves",
+    "@noble/hashes",
+  ],
 };
 
 export default nextConfig;

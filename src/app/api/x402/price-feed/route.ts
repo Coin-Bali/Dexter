@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 const PAIRS = ["BTC-USD", "ETH-USD", "ETH-BTC"] as const;
 const ROUTE_KEY = "GET /api/x402/price-feed";
 
-async function handleGet(_request: NextRequest): Promise<NextResponse<unknown>> {
+async function handleGet(request: NextRequest): Promise<NextResponse<unknown>> {
+  void request;
   try {
     const prices = await Promise.all(PAIRS.map(pair => fetchCoinbaseProductPrice(pair)));
 

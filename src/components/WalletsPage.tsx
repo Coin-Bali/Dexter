@@ -26,6 +26,7 @@ type AgentProfile = {
   address?: string;
   network?: string;
   balanceEth?: string;
+  missingEnv?: string[];
 };
 
 type PaymentRecord = {
@@ -368,7 +369,10 @@ export default function WalletsPage({ evmAddress, isSignedIn, formattedBalance, 
           </>
         ) : (
           <div className="info-banner">
-            The agent wallet requires CDP_API_KEY_ID, CDP_API_KEY_SECRET, and CDP_WALLET_SECRET environment variables to be configured.
+            The agent wallet is not configured.
+            {agentProfile?.missingEnv?.length
+              ? ` Missing: ${agentProfile.missingEnv.join(", ")}.`
+              : " Required environment variables are missing."}
           </div>
         )}
       </section>

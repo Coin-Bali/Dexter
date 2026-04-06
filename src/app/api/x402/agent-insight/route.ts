@@ -22,7 +22,8 @@ function buildNarrative(ethUsd: number, btcUsd: number, ethBtc: number) {
 
 const ROUTE_KEY = "GET /api/x402/agent-insight";
 
-async function handleGet(_request: NextRequest): Promise<NextResponse<unknown>> {
+async function handleGet(request: NextRequest): Promise<NextResponse<unknown>> {
+  void request;
   try {
     const { getAgentProfile } = await import("@/lib/agentkit");
     const [agentProfile, btcUsd, ethUsd, ethBtc] = await Promise.all([

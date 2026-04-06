@@ -11,7 +11,6 @@ import { formatEther } from "viem";
 import { prisma } from "@/lib/db";
 import { getNetworkConfig } from "@/lib/networks";
 import { getDexterPremiumServices } from "@/lib/x402-actions";
-import { createDexterX402ActionProvider } from "@/lib/x402-provider";
 
 type AgentUserContext = {
   id: string;
@@ -138,16 +137,25 @@ export async function getAgentKit(user: AgentUserContext) {
   const scopeKey = getScopeKey(user);
   if (!agentKitPromises.has(scopeKey)) {
     const walletProvider = await getAgentWalletProvider(user);
+    const actionProviders: NonNullable<
+      NonNullable<Parameters<typeof AgentKit.from>[0]>["actionProviders"]
+    > = [
+      walletActionProvider(),
+      cdpApiActionProvider(),
+      cdpEvmWalletActionProvider(),
+      pythActionProvider(),
+    ];
+
+    try {
+      const { createDexterX402ActionProvider } = await import("@/lib/x402-provider");
+      actionProviders.push(createDexterX402ActionProvider());
+    } catch {
+      // Keep chat usable even if the x402 client stack fails to load.
+    }
 
     agentKitPromises.set(scopeKey, AgentKit.from({
       walletProvider,
-      actionProviders: [
-        walletActionProvider(),
-        cdpApiActionProvider(),
-        cdpEvmWalletActionProvider(),
-        pythActionProvider(),
-        createDexterX402ActionProvider(),
-      ],
+      actionProviders,
     }));
   }
 
